@@ -104,7 +104,8 @@ void printResult(FirebaseData &data)
           if (aa.length()>=3){
             aa.remove(0,2);
             aa.remove(aa.length()-2,aa.length()-1);
-            char a[50];
+            aa += ",";
+            char a[50];        
             aa.toCharArray(a,50);
             Serial.print("할일 : ");
             Serial.println(a);

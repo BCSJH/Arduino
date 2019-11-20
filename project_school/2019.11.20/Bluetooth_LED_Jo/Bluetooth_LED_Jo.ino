@@ -60,21 +60,47 @@ Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
   display.ssd1306_command(0);
   
   }
-
+  String doit = "";
+  int doit_count = 1;
   void loop()
   {
     Wire.requestFrom(SLAVE, 1); //1 바이트 크기의 데이터 요청
     if ( s.available ( ) > 0 ) 
       {
+        char a;
         String datad = "";
-        datad += s.read();
-        Serial.print("datad: ");
-        Serial.println(datad);
-        WIFI_set += 1;
-        Serial.print("WIFI");
-        Serial.println(WIFI_set);
-        input_check(datad);
-        WIFI_set = 0;
+        String datads = "";
+        //datad += s.read();
+        a = s.read();
+        datad += a;
+
+        if (datad != "0" | datad != "1" | datad != "2" | datad != "3" | datad != "4" | datad != "5" | datad != "9" | datad != "12" | datad != "15")
+        {
+          
+          if (datad.equals(","))
+          {
+            doit_count = 0;
+          }
+          else if(doit_count == 1)
+          {
+            doit += a;
+            Serial.print("doit: ");
+            Serial.println(doit);
+            Serial.print("count : ");
+            Serial.println(doit_count);
+          }
+
+          }
+        else{
+          datads += a;
+          Serial.print("datad: ");
+          Serial.println(datads);
+          WIFI_set += 1;
+          Serial.print("WIFI");
+          Serial.println(WIFI_set);
+          input_check(datads);
+          WIFI_set = 0;
+          }      
       } 
       
       com();                                                          
@@ -280,34 +306,6 @@ Adafruit_SSD1306 display(OLED_MOSI, OLED_CLK, OLED_DC, OLED_RESET, OLED_CS);
         display.display();
     }
   
-    else if (input == "1" | input == "15")
-    {
-        digitalWrite(ALED, LOW);
-        Serial.print("에어컨 OFF \n");
-
-        display.clearDisplay();
-        display.setTextSize(2);             // Normal 1:1 pixel scale
-        display.setTextColor(SSD1306_WHITE);        // Draw white text
-        display.setCursor(10,0);             // Start at top-left corner
-        display.print(F("AIR"));
-
-        display.setTextSize(1);
-        display.setCursor(60,0);  
-        display.print(F("conditioner"));
-
-        display.setTextSize(2);
-        display.setCursor(50,17); 
-        display.print(F("OFF"));
-        display.display();
-        delay(4000);
-
-        display.clearDisplay();
-        display.setTextSize(2);             // Normal 1:1 pixel scale
-        display.setTextColor(SSD1306_WHITE);        // Draw white text
-        display.setCursor(5,0);             // Start at top-left corner
-        display.print("SMART HOME    IOT");
-        display.display();
-    }
       //마스터 우노
     else // node mcu에서 가져온 값
     {
