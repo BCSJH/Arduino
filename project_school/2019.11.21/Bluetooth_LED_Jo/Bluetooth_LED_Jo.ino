@@ -74,63 +74,12 @@ Servo servo;
   
   void loop()
   {
-
-    Wire.requestFrom(SLAVE, 1); //1 바이트 크기의 데이터 요청
-    if ( s.available ( ) > 0 ) 
-      {
-        char a;
-        String datad = "";
-        String datads = "";
-        //datad += s.read();
-        
-        cur_time = millis();
-        
-        a = s.read();
-        datad += a;
-        Serial.print("datad : ");
-        Serial.println(datad);
-        
-        if(cur_time - pre_time >= 1000000) // 1000 = 1초
-        {
-          if ((datad != "0" & datad != "1" & datad != "2" & datad != "3" & datad != "4" & datad != "5" & datad != "9" & datad != "12" & datad != "15") & doit_count == 1)
-          {
-  
-            if (datad.equals(","))
-            {
-              doit_count = 0;
-              //doitCheck += doit;
-            }
-            else if(doit_count == 1)
-            {
-              doit += a;
-              Serial.print("doit: ");
-              Serial.println(doit);
-              Serial.print("count : ");
-              Serial.println(doit_count);
-            }
-  
-          }
-          pre_time = cur_time; // 일정 시간마다 반복
-        }
-        
-        else if (datad == "0" | datad == "1" | datad == "2" | datad == "3" | datad == "4" | datad == "5" | datad == "9" | datad == "12" | datad == "15")
-        {
-          datads += a;
-          Serial.print("datads: ");
-          Serial.println(datads);
-          WIFI_set += 1;
-          Serial.print("WIFI");
-          Serial.println(WIFI_set);
-          input_check(datads);
-          WIFI_set = 0;
-          doit_count == 1;
-          }      
-      } 
-      
-      com();                                                          
+      WIFI_data();//와이파이 데이터 출력
+      com(); //우노끼리 통신하여 값 보내기                                                          
       delay(1000);
 
   }
+
 
   void com()//우노끼리 통신
   {
@@ -156,168 +105,218 @@ Servo servo;
       input_check(input);
     }
   }
+
   
+  void WIFI_data(){//와이파이 값 가져와서 제어
+    Wire.requestFrom(SLAVE, 1); //1 바이트 크기의 데이터 요청
+    if ( s.available ( ) > 0 ) 
+      {
+        char a;
+        String datad = "";
+        String datads = "";
+        String news = ""; 
+        //datad += s.read();
+        
+        cur_time = millis();//loop문
+              a += s.read();
+              datad += a;//할일
+              
+              Serial.print("a : ");
+              Serial.println(a);
+              Serial.print("제어 : ");
+              //datad += (int)t;
+              int ints = (int)a;
+              news += (int)a;//제어
+              
+              Serial.print("datad : ");
+              Serial.println(datad);        
+   
+          if ((ints != 0 & ints != 1 & ints != 2 & ints != 3 & ints != 4 & ints != 5 & ints != 9 & ints != 12 & ints != 15) & doit_count == 1)
+          {
+            if (datad.equals(","))// doit 넣기
+            {
+              Serial.print(",찍혔어"); 
+              doit_count = 0;
+              pre_time = cur_time; // 일정 시간마다 반복
+            }
+            if(doit_count == 1)
+            {
+              doit += a;
+              Serial.print("doit: ");
+              Serial.println(doit);
+              Serial.print("count : ");
+              Serial.println(doit_count);
+            }
+        }
+        
+        if (news == "0" | news == "1" | news == "2" | news == "3" | news == "4" | news == "5" | news == "9" | news == "12" | news == "15")
+        {
+          WIFI_set += 1;
+          Serial.print("WIFI");
+          Serial.println(WIFI_set);
+          input_check(news);
+          WIFI_set = 0;
+          doit_count == 1;
+          }      
+      } 
+    }  
     
-  void input_check(String input){//WIFI값 받아와서 제어
-    Serial.println(WIFI_set);
-    Serial.println(input);
-    Serial.println(count_WiFi);
-    if (WIFI_set == 1 & input == "2" & count_WiFi == 0){
-          Serial.print("여기 도착했어?");
-          sound_on();
+    void input_check(String input){//WIFI값 받아와서 제어
+      Serial.println(WIFI_set);
+      Serial.println(input);
+      Serial.println(count_WiFi);
+      if (WIFI_set == 1 & input == "2" & count_WiFi == 0){
+            Serial.print("여기 도착했어?");
+            sound_on();
+            input = "";
+            count_WiFi++;      
+      }
+      else if (WIFI_set == 1 & input == "6" & count_WiFi == 1){
+          sound_off();
           input = "";
-          count_WiFi++;      
-    }
-    else if (WIFI_set == 1 & input == "6" & count_WiFi == 1){
-        sound_off();
-        input = "";
-        count_WiFi = 0;
+          count_WiFi = 0;
+        }
+        
+      else if (input == "3")
+      {
+          digitalWrite(LLED, HIGH);
+          Serial.print("전등 ON \n");
+
+          oled();
+          display.setCursor(37,0);             // Start at top-left corner
+          display.print(F("LIGHT"));
+          display.setCursor(55,17); 
+          display.print(F("ON"));
+          display.display();
+          delay(4000);
+  
+          oled();
+          display.setCursor(5,0);             // Start at top-left corner
+          display.print("SMART HOME    IOT");
+          display.display();
+
+  
+      }
+    
+      else if (input == "4")
+      {
+          digitalWrite(BLED, HIGH);
+          Serial.print("보일러 ON \n");
+
+          oled();
+          display.setCursor(32,0);             // Start at top-left corner
+          display.print(F("BOILER"));
+          display.setCursor(55,17); 
+          display.print(F("ON"));
+          display.display();
+          delay(4000);
+  
+          oled();
+          display.setCursor(5,0);             // Start at top-left corner
+          display.print("SMART HOME    IOT");
+          display.display();
+
+      }
+    
+    else if (input == "5")
+      {
+          digitalWrite(ALED, HIGH);
+          Serial.print("에어컨 ON \n");
+  
+          oled();
+          display.setCursor(10,0);             // Start at top-left corner
+          display.print(F("AIR"));
+  
+          display.setTextSize(1);
+          display.setCursor(60,0);  
+          display.print(F("conditioner"));
+  
+          display.setTextSize(2);
+          display.setCursor(55,17); 
+          display.print(F("ON"));
+          display.display();
+          delay(4000);
+  
+          oled();
+          display.setCursor(5,0);             // Start at top-left corner
+          display.print("SMART HOME    IOT");
+          display.display();
+  
+      }
+    
+      else if (input == "9")
+      {
+          digitalWrite(LLED, LOW);
+          Serial.print("전등 OFF \n");
+  
+          oled();
+          display.setCursor(38,0);             // Start at top-left corner
+          display.print(F("LIGHT"));
+          display.setCursor(50,17); 
+          display.print(F("OFF"));
+          display.display();
+          delay(4000);
+  
+          oled();
+          display.setCursor(5,0);             // Start at top-left corner
+          display.print("SMART HOME    IOT");
+          display.display();
       }
       
-    else if (input == "3")
-    {
-        digitalWrite(LLED, HIGH);
-        Serial.print("전등 ON \n");
-          /*
-        oled();
-        display.setCursor(37,0);             // Start at top-left corner
-        display.print(F("LIGHT"));
-        display.setCursor(55,17); 
-        display.print(F("ON"));
-        display.display();
-        delay(4000);
-
-        oled();
-        display.setCursor(5,0);             // Start at top-left corner
-        display.print("SMART HOME    IOT");
-        display.display();
-        */
-
-    }
-  
-    else if (input == "4")
-    {
-        digitalWrite(BLED, HIGH);
-        Serial.print("보일러 ON \n");
-/*
-        oled();
-        display.setCursor(32,0);             // Start at top-left corner
-        display.print(F("BOILER"));
-        display.setCursor(55,17); 
-        display.print(F("ON"));
-        display.display();
-        delay(4000);
-
-        oled();
-        display.setCursor(5,0);             // Start at top-left corner
-        display.print("SMART HOME    IOT");
-        display.display();
-*/
-    }
-  
-  else if (input == "5")
-    {
-        digitalWrite(ALED, HIGH);
-        Serial.print("에어컨 ON \n");
-
-        display.clearDisplay();
-        display.setTextSize(2);             // Normal 1:1 pixel scale
-        //display.setTextColor(SSD1306_WHITE);        // Draw white text
-        display.setCursor(10,0);             // Start at top-left corner
-        display.print(F("AIR"));
-
-        display.setTextSize(1);
-        display.setCursor(60,0);  
-        display.print(F("conditioner"));
-
-        display.setTextSize(2);
-        display.setCursor(55,17); 
-        display.print(F("ON"));
-        display.display();
-        delay(4000);
-
-        display.clearDisplay();
-        display.setTextSize(2);             // Normal 1:1 pixel scale
-        //display.setTextColor(SSD1306_WHITE);        // Draw white text
-        display.setCursor(5,0);             // Start at top-left corner
-        display.print("SMART HOME    IOT");
-        display.display();
-
-    }
-  
-    else if (input == "9")
-    {
-        digitalWrite(LLED, LOW);
-        Serial.print("전등 OFF \n");
-
-        oled();
-        display.setCursor(38,0);             // Start at top-left corner
-        display.print(F("LIGHT"));
-        display.setCursor(50,17); 
-        display.print(F("OFF"));
-        display.display();
-        delay(4000);
-
-        oled();
-        display.setCursor(5,0);             // Start at top-left corner
-        display.print("SMART HOME    IOT");
-        display.display();
-    }
     
+      else if (input == "0" | input == "12")
+      {
+          digitalWrite(BLED, LOW);
+          Serial.print("보일러 OFF \n");
   
-    else if (input == "0" | input == "12")
-    {
-        digitalWrite(BLED, LOW);
-        Serial.print("보일러 OFF \n");
-
-        oled();
-        display.setCursor(32,0);             // Start at top-left corner
-        display.print(F("BOILER"));
-        display.setCursor(50,17); 
-        display.print(F("OFF"));
-        display.display();
-        delay(4000);
-
-        oled();
-        display.setCursor(5,0);             // Start at top-left corner
-        display.print("SMART HOME    IOT");
-        display.display();
-
-    }
+          oled();
+          display.setCursor(32,0);             // Start at top-left corner
+          display.print(F("BOILER"));
+          display.setCursor(50,17); 
+          display.print(F("OFF"));
+          display.display();
+          delay(4000);
+  
+          oled();
+          display.setCursor(5,0);             // Start at top-left corner
+          display.print("SMART HOME    IOT");
+          display.display();
+  
+      }
+      
+      else if (input == "1" | input == "15")
+      {
+          digitalWrite(ALED, LOW);
+          Serial.print("에어컨 OFF \n");
+  
+          oled();
+          display.setCursor(10,0);             // Start at top-left corner
+          display.print(F("AIR"));
+  
+          display.setTextSize(1);
+          display.setCursor(60,0);  
+          display.print(F("conditioner"));
+  
+          display.setTextSize(2);
+          display.setCursor(50,17); 
+          display.print(F("OFF"));
+          display.display();
+          delay(4000);
+  
+          oled();
+          display.setCursor(5,0);             // Start at top-left corner
+          display.print("SMART HOME    IOT");
+          display.display();
+      }
     
-    else if (input == "1" | input == "15")
-    {
-        digitalWrite(ALED, LOW);
-        Serial.print("에어컨 OFF \n");
-
-        oled();
-        display.setCursor(10,0);             // Start at top-left corner
-        display.print(F("AIR"));
-
-        display.setTextSize(1);
-        display.setCursor(60,0);  
-        display.print(F("conditioner"));
-
-        display.setTextSize(2);
-        display.setCursor(50,17); 
-        display.print(F("OFF"));
-        display.display();
-        delay(4000);
-
-        oled();
-        display.setCursor(5,0);             // Start at top-left corner
-        display.print("SMART HOME    IOT");
-        display.display();
-    }
-  
-      //마스터 우노
-    else // node mcu에서 가져온 값
-    {
-        Serial.print("node mcu가 보낸값 :"); //
-        Serial.println(input); //node mcu에서 전송한 할일 텍스트 출력
+        //마스터 우노
+      else // node mcu에서 가져온 값
+      {
+          Serial.print("node mcu가 보낸값 :"); //
+          Serial.println(input); //node mcu에서 전송한 할일 텍스트 출력
+       }
+   
      }
- 
-   }
 
 
 
@@ -342,8 +341,8 @@ Servo servo;
       servo.detach(); 
     }
 
- void oled(){
+ void oled(){// oled 반복
         display.clearDisplay();
         display.setTextSize(2);             // Normal 1:1 pixel scale
-        display.setTextColor(SSD1306_WHITE);        // Draw white text
+       // display.setTextColor(SSD1306_WHITE);        // Draw white text
   }

@@ -1,4 +1,5 @@
 
+
 #include <SoftwareSerial.h>//와이파이 통신
 
 #include "FirebaseESP8266.h" //파이어베이스 사용
@@ -12,11 +13,17 @@
 #define WIFI_SSID "KBU" 
 #define WIFI_PASSWORD "1952bible!"
 
+int count_check = 0;//파이어베이스에 비교하기위한 기존 할일 값을 한번만 저장
+
+  unsigned long pre_time = 0;
+  unsigned long cur_time = 0;
+  
 //Define FirebaseESP8266 data object
 FirebaseData firebaseData;
 FirebaseJson json;
 
 SoftwareSerial s(D6,D5); // (Rx, Tx) //와이파이 통신
+
 
 void printResult(FirebaseData &data);
 
@@ -58,8 +65,8 @@ void setup()
 
   Serial.println("------------------------------------");
   Serial.println("Get double test...");
-
-
+  
+  
     //Also can use Firebase.get instead of Firebase.setInt
     if (Firebase.getString(firebaseData, path))
     {
@@ -87,7 +94,7 @@ void setup()
 
 
 }
-
+String data_checks = ""; //와이파이 값 저장
 void printResult2(FirebaseData &data)
 {
     if (data.dataType() == "int")
@@ -99,17 +106,38 @@ void printResult2(FirebaseData &data)
     else if (data.dataType() == "boolean")
         Serial.println(data.boolData() == 1 ? "true" : "false");
     else if (data.dataType() == "string")
-    {        
-          String aa = data.stringData();
-            aa.remove(0,2);
-            aa.remove(aa.length()-2,aa.length()-1);
-            aa += ",";
-            char a[50];        
-            aa.toCharArray(a,50);
-            Serial.print("할일 : ");
-            Serial.println(a);
-            s.write(a);
+    {       
 
+            String aa = data.stringData();
+            aa.remove(0,2);
+            aa.remove(aa.length()-2, aa.length()-1);// "/제거
+            aa += ",";
+
+            if(count_check == 0)
+            {
+              data_checks += aa;
+              count_check = 1;
+              
+              char a[50];        
+              aa.toCharArray(a,50);
+              Serial.print("할일 : ");
+              Serial.println(a);
+              s.write(a);
+              
+            }
+            else{
+              if(data_checks == aa){
+                  Serial.println("특수문자");
+                }
+                else{
+                  Serial.println("초기화");
+                  count_check = 0;
+                  data_checks = "";
+                  }
+            }
+            Serial.print("값 뭐로 저장? : ");
+            Serial.println(data_checks);
+    delay(1000);
     }
     
 }
