@@ -73,13 +73,13 @@ String datas = "";
 
   void control(){// 우노끼리 통신할 때 값 전달
     if(datas == "2"){//현관문
-      Serial.print("왓어");
+      Serial.print("현관문 열기 왓어");
       Wire.write("2");
       datas = "";
     }
     
     if(datas == "6"){//현관문
-      Serial.print("왓어");
+      Serial.print("현관문 닫기 왓어");
       Wire.write("6");
       datas = "";
     }
