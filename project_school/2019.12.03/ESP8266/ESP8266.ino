@@ -9,9 +9,9 @@
 
 //와이파이와 파이어베이스 연동
 #define FIREBASE_HOST "arduinowebserver2.firebaseio.com" 
-#define FIREBASE_AUTH "cg9MKZYgyzWQPuwsI3WnXXaUJgqp4DGLlirr8048" 
+#define FIREBASE_AUTH "cg" 
 #define WIFI_SSID "KBU" 
-#define WIFI_PASSWORD "1952bible!"
+#define WIFI_PASSWORD ""
 
 int count_check = 0;//파이어베이스에 비교하기위한 기존 할일 값을 한번만 저장
   
