@@ -11,10 +11,12 @@
 
 // 2. ESP8266WiFi.h 포함 및 FirebaseESP8266.h 다음에  포함되어야 함 
 
+
+//와이파이와 파이어베이스 연동
 #define FIREBASE_HOST "arduinowebserver2.firebaseio.com" 
-#define FIREBASE_AUTH "AIzaSyBwFV2eyPdgE4my66Mrez_zx1huksfKLA4" 
+#define FIREBASE_AUTH "cg" 
 #define WIFI_SSID "KBU" 
-#define WIFI_PASSWORD "1952bible!" 
+#define WIFI_PASSWORD ""
 
 // 3. 전역 범위에서 Firebase 데이터 객체를 선언합니다.
 
