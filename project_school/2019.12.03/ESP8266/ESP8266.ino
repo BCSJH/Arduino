@@ -96,12 +96,7 @@ void printResult2(FirebaseData &data)
 {
     if (data.dataType() == "int")
         Serial.println(data.intData());
-    else if (data.dataType() == "float")
-        Serial.println(data.floatData(), 5);
-    else if (data.dataType() == "double")
-        printf("%.9lf\n", data.doubleData());
-    else if (data.dataType() == "boolean")
-        Serial.println(data.boolData() == 1 ? "true" : "false");
+
     else if (data.dataType() == "string")
     {       
             String aa = data.stringData();
@@ -142,12 +137,7 @@ void printResult(FirebaseData &data)
 
     if (data.dataType() == "int")
         Serial.println(data.intData());
-    else if (data.dataType() == "float")
-        Serial.println(data.floatData(), 5);
-    else if (data.dataType() == "double")
-        printf("%.9lf\n", data.doubleData());
-    else if (data.dataType() == "boolean")
-        Serial.println(data.boolData() == 1 ? "true" : "false");
+
     else if (data.dataType() == "string")
     {        
             int a;
